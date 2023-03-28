@@ -1,0 +1,2 @@
+.cache/test.o: test/test.c
+.cache/ndarray.o: src/ndarray.c src/ndarray.h
