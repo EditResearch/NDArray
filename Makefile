@@ -45,7 +45,6 @@ env:
 	mkdir -pv $(CACHE)
 	mkdir -pv $(OUTPUT)
 
-
 install:
 	cp -v $(OUTPUT)/$(TARGET) $(LIB_PATH)/$(TARGET)
 	cp -v src/ndarray.h $(INCLUDE_PATH)/ndarray.h
