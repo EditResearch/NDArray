@@ -2,6 +2,10 @@ CC=gcc
 CFLAGS=-Wall -Wextra -pedantic -std=c2x -O3 -fpic
 LIBS=
 
+
+INCLUDE_PATH=/usr/include/
+LIB_PATH=/usr/lib64/
+
 TARGET=libndarray.so
 CACHE=.cache
 OUTPUT=$(CACHE)/release
@@ -41,6 +45,10 @@ env:
 	mkdir -pv $(CACHE)
 	mkdir -pv $(OUTPUT)
 
+
+install:
+	cp -v $(OUTPUT)/$(TARGET) $(LIB_PATH)/$(TARGET)
+	cp -v src/ndarray.h $(INCLUDE_PATH)/ndarray.h
 
 clean: 
 	rm -rvf $(OUTPUT)

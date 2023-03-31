@@ -33,10 +33,13 @@ ndarray_new(
 
     if(self != NULL)
     {
-        self->type_size = type_size;
-        self->ndim      = ndim;
-        self->delete    = delete;
-        self->shape     = malloc(sizeof(uint32_t) * ndim);
+        *self = (ND_Array)
+            {
+                .type_size = type_size
+                , .ndim      = ndim
+                , .delete    = delete
+                , .shape     = malloc(sizeof(uint32_t) * ndim)
+            };
 
         memcpy(self->shape, shape, sizeof(uint32_t) * ndim); 
     }
@@ -58,10 +61,13 @@ ndarray_new_from_array(
 
     if(self != NULL)
     {
-        self->type_size = type_size;
-        self->ndim      = ndim;
-        self->delete    = delete;
-        self->shape     = malloc(sizeof(uint32_t) * ndim);
+        *self = (ND_Array) 
+            {
+                .type_size = type_size
+                , .ndim      = ndim
+                , .delete    = delete
+                , .shape     = malloc(sizeof(uint32_t) * ndim)
+            };
 
         memcpy(self->shape, shape, sizeof(uint32_t) * ndim); 
         memcpy(self+1, data, type_size*length);
