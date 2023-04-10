@@ -22,6 +22,8 @@ struct ND_Array
     size_t type_size;
     uint32_t ndim;
     uint32_t * shape;
+    size_t length;
+
     ND_ArrayDelete delete;
 };
 
