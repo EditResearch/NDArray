@@ -4,42 +4,33 @@
 #include <string.h>
 
 
-#define ND_ARRAY_NO_EXPORT static
-
-
-ND_ARRAY_NO_EXPORT size_t
-ndarray_compute_length(
+static size_t
+__compute_size(
     uint32_t ndim
-    , uint32_t * shape)
-{
-    size_t length = shape[0];
+    , uint32_t * shape) {
+    size_t size = shape[0];
 
     for(uint32_t i = 1; i < ndim; i++)
-        length *= shape[i];
+        size *= shape[i];
 
-    return length;
+    return size;
 }   
 
 
 ND_Array(void) * 
 ndarray_new(
-    size_t type_size
+    size_t dtype
     , uint32_t ndim
-    , uint32_t * shape
-    , ND_ArrayDelete delete)
-{
-    size_t length   = ndarray_compute_length(ndim, shape);
-    ND_Array * self = malloc(sizeof(ND_Array) + (type_size*length));
+    , uint32_t * shape) {
+    size_t size     = __compute_size(ndim, shape);
+    ND_Array * self = malloc(sizeof(ND_Array) + (dtype*size) + (sizeof(uint32_t) * ndim));
 
-    if(self != NULL)
-    {
-        *self = (ND_Array)
-            {
-                .type_size = type_size
-                , .length  = length
-                , .ndim    = ndim
-                , .delete  = delete
-                , .shape   = malloc(sizeof(uint32_t) * ndim)
+    if(self != NULL) {
+        *self = (ND_Array) {
+                .dtype   = dtype
+                , .size  = size
+                , .ndim  = ndim
+                , .shape = (uint32_t *) (((char*) self) + sizeof(ND_Array) + (size * dtype))
             };
 
         memcpy(self->shape, shape, sizeof(uint32_t) * ndim); 
@@ -48,41 +39,37 @@ ndarray_new(
     return self + 1;
 }
 
+#include <stdio.h>
 
 ND_Array(void) *
 ndarray_new_from_array(
-    size_t type_size
+    size_t dtype
     , uint32_t ndim
     , uint32_t * shape
-    , void * data
-    , ND_ArrayDelete delete)
-{
-    size_t length   = ndarray_compute_length(ndim, shape);
-    ND_Array * self = malloc(sizeof(ND_Array) + (type_size*length));
+    , void * data) {
+    /*
+    size_t size     = __compute_size(ndim, shape);
+    ND_Array * self = malloc(sizeof(ND_Array) + (dtype*size) + (sizeof(uint32_t) * ndim));
 
-    if(self != NULL)
-    {
-        *self = (ND_Array) 
-            {
-                .type_size = type_size
-                , .length  = length
-                , .ndim    = ndim
-                , .delete  = delete
-                , .shape   = malloc(sizeof(uint32_t) * ndim)
+    if(self != NULL) {
+        *self = (ND_Array) {
+                .dtype   = dtype
+                , .size  = size
+                , .ndim  = ndim
+                , .shape = (uint32_t*) (((char *) self) + (dtype * size))
             };
 
         memcpy(self->shape, shape, sizeof(uint32_t) * ndim); 
-        memcpy(self+1, data, type_size*length);
+        memcpy(self+1, data, dtype*size);
     }
+    */
+    printf("%d\n", shape[1]);
 
-    return self + 1;
-}
+    ND_Array(void) * self = ndarray_new(dtype, ndim, shape);
+ 
+    memcpy(self, data, ND_ARRAY(self)->size * dtype);
 
-
-size_t 
-ndarray_length(ND_Array * self)
-{
-    return ndarray_compute_length(self->ndim, self->shape);
+    return self;
 }
 
 
@@ -93,11 +80,10 @@ ndarray_clone(ND_Array * self)
         return NULL;
 
     return ndarray_new_from_array(
-            self->type_size
+            self->dtype
             , self->ndim
             , self->shape
-            , self+1
-            , self->delete);
+            , self+1);
 }
 
 
@@ -105,15 +91,8 @@ void
 ndarray_delete(ND_Array * self)
 {
     if(self != NULL)
-        self->delete(self);
+        free(self);
 }
 
-
-void
-ndarray_delete_default(ND_Array * self)
-{
-    free(self->shape);
-    free(self);
-}
 
 

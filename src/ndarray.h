@@ -11,20 +11,12 @@
 typedef struct ND_Array ND_Array;
 
 
-typedef void (*ND_ArrayDelete)(ND_Array *);
-
-
-#define ND_ARRAY_DELETE(T)((ND_ArrayDelete) T)
-
-
 struct ND_Array
 {
-    size_t type_size;
+    size_t dtype;
     uint32_t ndim;
+    size_t size;
     uint32_t * shape;
-    size_t length;
-
-    ND_ArrayDelete delete;
 };
 
 
@@ -33,36 +25,30 @@ struct ND_Array
 
 ND_Array(void) * 
 ndarray_new(
-     size_t type_size
+     size_t dtype
     , uint32_t ndim
-    , uint32_t * shape
-    , ND_ArrayDelete delete);
+    , uint32_t * shape);
 
 
-#define ndarray(type, ndim, shape, delete) \
-    ndarray_new(sizeof(type), ndim, shape, delete)
+#define ndarray(type, shape) \
+    ndarray_new(sizeof(type), sizeof(shape)/sizeof(*shape), shape)
 
 
 ND_Array(void) *
 ndarray_new_from_array(
-    size_t type_size
+    size_t dtype
     , uint32_t ndim
     , uint32_t * shape
-    , void * data
-    , ND_ArrayDelete delete);
+    , void * data);
 
 
-#define ndarray_from_array(ndim, shape, data, delete)   \
-    ndarray_new_from_array(                             \
-        sizeof(*data)                                   \
-        , ndim                                          \
-        , shape                                         \
-        , data                                          \
-        , delete)
+#define ndarray_from_array(shape, data)   \
+    ndarray_new_from_array(               \
+        sizeof(*data)                     \
+        , (sizeof(shape)/sizeof(*shape))  \
+        , shape                           \
+        , data)
 
-
-size_t 
-ndarray_length(ND_Array * self);
 
 
 ND_Array(void) *
@@ -71,10 +57,6 @@ ndarray_clone(ND_Array * self);
 
 void
 ndarray_delete(ND_Array * self);
-
-
-void
-ndarray_delete_default(ND_Array * self);
 
 
 #endif

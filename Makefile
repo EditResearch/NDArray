@@ -19,7 +19,7 @@ T_OBJ=$(addprefix $(CACHE)/,$(TEST))
 
 
 all: env $(OBJ)
-	$(CC) -shared $(OBJ) $(LIBS) -o $(OUTPUT)/$(TARGET)
+	ar -crs $(OUTPUT)/$(TARGET) $(OBJ)
 
 
 %.o:
